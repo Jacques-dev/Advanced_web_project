@@ -121,12 +121,13 @@
         if (date && heure && personnes) {
           this.$emit('reserver', this.editingReservation)
         } else {
-          asAlertMsg({
+          Notify({
             status: "warning",
             title: "Attention",
             text: "Veuillez remplir les champs de votre réservation",
             autoclose: true,
-            autotimeout: 2000
+            autotimeout: 2000,
+            position: "center"
           })
         }
       }

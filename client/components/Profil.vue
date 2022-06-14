@@ -67,21 +67,41 @@
           </div>
         </div>
 
-        <div id="mes_reservations" class="container-fluid">
-          <section class="row titre_section">
-             Mes réservations
-          </section>
-          <section class="row chaque_reservation" v-for="reserv in user.reservations">
-            <section class="col-sm-12 data_reservation">
-              Date : {{ reserv.date }}
-            </section>
-            <section class="col-sm-12 data_reservation">
-              Heure : {{ reserv.heure }}
-            </section>
-            <section class="col-sm-12 data_reservation">
-              Nombre de personnes : {{ reserv.personnes }}
-            </section>
-          </section>
+        <div class="container-fluid" id="res_cmd">
+          <div class="row">
+            <div id="mes_reservations" class="col-lg-6">
+              <section class="row titre_section">
+                Mes réservations
+              </section>
+              <section class="row chaque_reservation" v-for="reserv in user.reservations">
+                <section class="col-sm-12 data_reservation">
+                  Date : {{ reserv.date }}
+                </section>
+                <section class="col-sm-12 data_reservation">
+                  Heure : {{ reserv.heure }}
+                </section>
+                <section class="col-sm-12 data_reservation">
+                  Nombre de personnes : {{ reserv.personnes }}
+                </section>
+              </section>
+            </div>
+            <div id="mes_commandes" class="col-lg-6">
+              <section class="row titre_section">
+                Mes commandes
+              </section>
+              <section class="row chaque_commande" v-for="cmd in user.commands">
+                <section class="col-sm-12 data_commande">
+                  Date : {{ cmd.time }}
+                </section>
+                <section class="col-sm-12 data_commande">
+                  Prix : {{ cmd.price }} €
+                </section>
+                <section class="col-sm-12 data_commande">
+                  Adresse : {{ cmd.adresse }}
+                </section>
+              </section>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -134,6 +154,10 @@
 
 <style scoped>
 
+  #res_cmd {
+    padding: 0 !important;
+  }
+
   #formulaire_modification_profil{
     margin: 10px 0;
   }
@@ -142,13 +166,13 @@
     padding: 2px 0;
   }
 
-  .chaque_reservation {
+  .chaque_reservation, .chaque_commande {
     box-shadow: 3px 3px 3px 3px var(--rouge);
     margin: 12px 0 12px 0;
     padding: 10px 0 10px 0;
   }
 
-  .data_reservation {
+  .data_reservation, .data_commande {
     margin: 0 0 10px 0;
   }
 
@@ -178,7 +202,7 @@
     padding: 20px;
   }
 
-  #mes_infos, #mes_reservations {
+  #mes_infos, #mes_reservations, #mes_commandes {
     background-color: var(--beige_o);
   }
 

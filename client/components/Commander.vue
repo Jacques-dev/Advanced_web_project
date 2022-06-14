@@ -2,6 +2,12 @@
 
   <section id="background">
     <section id="colonne_principale" class="container d-flex flex-column" >
+<!-- 
+      <section class="row">
+        <h1>Paiement avec Paypal</h1>
+        <h3>{{ panier.prix }}€</h3>
+        <button></button>
+      </section> -->
 
       <section id="ligne_resume_commande" class="row">
 
@@ -12,9 +18,10 @@
           <p>Total : {{ panier.prix }}€ </p>
         </article>
         <article class="col-sm-4">
-          <button class="effet_bouton_commander taille_1" id="bouton_commander" class="col-sm-12" @click="commander()">
+          <button class="col-sm-12 effet_bouton_commander taille_1" id="bouton_commander" @click="commander()">
             Commander
           </button>
+          <input type="text" placeholder="adress" class="col-sm-12" v-model="adresse">
         </article>
 
       </section>
@@ -51,7 +58,7 @@
                   <div class="row image_plat">
                     <img v-bind:src="menu.image" class="image">
                     <div class="affichage_bouton_ajout_panier">
-                      <button type="button" name="button" class="ajouter_panier_bouton" @click="addToPanier(menu.id, menu.type, menu.price, menu.image)" v-if="user.id">Ajouter au panier</button>
+                      <button type="button" name="button" class="ajouter_panier_bouton" @click="addToPanier(menu.id, menu.type, menu.price, menu.image, menu.name)" v-if="user.id">Ajouter au panier</button>
                     </div>
                   </div>
 
@@ -96,7 +103,7 @@
 
                   <article class="row ligne_boutons_panier">
                     <article class="col-sm-6">
-                      <select class="col-sm-12" @change="edit(menu.id, menu.type, menu.prix)" v-model="editMenu.quantity" class="mySelect">
+                      <select class="col-sm-12 mySelect" @change="edit(menu.id, menu.type, menu.prix)" v-model="editMenu.quantity">
                         <option value="" disabled selected>quantité</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -147,7 +154,8 @@
           image: '',
           type: ''
         },
-        menuType: "soups"
+        menuType: "soups",
+        adresse: ""
       }
     },
     methods: {
@@ -178,19 +186,32 @@
       },
       // Simule le passage d'une commande
       commander() {
-        this.$emit('commander')
+        if (this.adresse != "") {
+          this.$emit('commander', {adresse: this.adresse})
+        } else {
+          new Notify({
+          status: "warning",
+          title: "Attention",
+          text: "Veuillez inscrire l'adresse de livraison",
+          autoclose: true,
+          autotimeout: 2000,
+          position: "center"
+        })
+        }
+        
       },
       // Affiche "Spicy" sur le site si le champ spicy du menu est "true"
       isSpicy(boolean) {
         return boolean
       },
       // Ajoute un menu au panier
-      addToPanier (menuId, menuType, menuPrix, menuImage) {
+      addToPanier (menuId, menuType, menuPrix, menuImage, menuName) {
         let content = {
           id: menuId,
           type: menuType,
           prix: menuPrix,
-          image: menuImage
+          image: menuImage,
+          name: menuName
         }
         this.$emit('add-to-panier', content)
       },

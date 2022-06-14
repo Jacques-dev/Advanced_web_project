@@ -3,10 +3,10 @@
   <div>
 
     <ul id="slider">
-      <li><router-link to="/#first" title="Next Section"><img src="https://fr.m.wikipedia.org/wiki/Fichier:Location_dot_orange.svg"/></router-link></li>
-      <li><router-link to="/#second" title="Next Section"><img src="https://fr.m.wikipedia.org/wiki/Fichier:Location_dot_orange.svg"/></router-link></li>
-      <li><router-link to="/#third" title="Next Section"><img src="https://fr.m.wikipedia.org/wiki/Fichier:Location_dot_orange.svg"/></router-link></li>
-      <li><router-link to="/#four" title="Next Section"><img src="https://fr.m.wikipedia.org/wiki/Fichier:Location_dot_orange.svg"/></router-link></li>
+      <li><router-link to="/#first" title="Next Section"><img src="https://fr.wikipedia.org/wiki/Fichier:Basic_green_dot.png"/></router-link></li>
+      <li><router-link to="/#second" title="Next Section"><img src="https://fr.wikipedia.org/wiki/Fichier:Basic_green_dot.png"/></router-link></li>
+      <li><router-link to="/#third" title="Next Section"><img src="https://fr.wikipedia.org/wiki/Fichier:Basic_green_dot.png"/></router-link></li>
+      <li><router-link to="/#four" title="Next Section"><img src="https://fr.wikipedia.org/wiki/Fichier:Basic_green_dot.png"/></router-link></li>
     </ul>
 
     <section id="first" class="container-fluid parallax">

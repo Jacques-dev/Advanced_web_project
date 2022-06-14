@@ -47,10 +47,12 @@ var app = new Vue({
       prenom: null,
       email: null,
       telephone: null,
-      reservations: []
+      reservations: [],
+      commands: []
     },
     admin: {
-      id: null
+      id: null,
+      users: []
     },
     menusTypes: ['soups', 'dumplings', 'noodles', 'sashimi', 'nigiri']
   },
@@ -63,7 +65,7 @@ var app = new Vue({
     await axios.post('/api/setdatas', 'menusTypes=' + this.menusTypes)
 
     const res3 = await axios.get('/api/me')
-    this.admin.id = res3.data.adminId
+    this.admin = res3.data.admin
     this.user = res3.data.user
   },
   methods: {
@@ -78,7 +80,8 @@ var app = new Vue({
           title: "Attention",
           text: "Cette adresse mail existe déjà",
           autoclose: true,
-          autotimeout: 2000
+          autotimeout: 2000,
+          position: "center"
         })
       }
     },
@@ -88,14 +91,15 @@ var app = new Vue({
         await axios.post('/api/login/','email=' + user.email + '&password=' + user.password)
 
         const res = await axios.get('/api/me')
-        this.admin.id = res.data.adminId
+        this.admin = res.data.admin
         this.user = res.data.user
         new Notify({
           status: "success",
           title: "Validé",
           text: "Votre êtes connecté",
           autoclose: true,
-          autotimeout: 2000
+          autotimeout: 2000,
+          position: "center"
         })
         router.push('/')
       } catch (e) {
@@ -104,7 +108,8 @@ var app = new Vue({
           title: "Attention",
           text: "Votre êtes connecté",
           autoclose: true,
-          autotimeout: 2000
+          autotimeout: 2000,
+          position: "center"
         })
       }
     },
@@ -113,13 +118,15 @@ var app = new Vue({
       await axios.post('/api/adminlogin/','id=' + admin.email + '&password=' + admin.password)
 
       const res = await axios.get('/api/me')
-      this.admin.id = res.data.adminId
+      this.admin = res.data.admin
+
       new Notify({
         status: "success",
         title: "Validé",
         text: "Votre êtes connecté en admin",
         autoclose: true,
-        autotimeout: 2000
+        autotimeout: 2000,
+        position: "center"
       })
       router.push('/')
     },
@@ -127,6 +134,7 @@ var app = new Vue({
     async logout () {
       const res = await axios.post('/api/logout/')
       this.admin.id = res.data.admin
+      this.admin.users = []
       this.user.nom = res.data.nom
       this.user.email = res.data.email
       this.user.prenom = res.data.prenom
@@ -134,11 +142,13 @@ var app = new Vue({
       this.user.id = res.data.user
       this.panier = res.data.panier
       this.user.reservations = []
+      this.user.commands = []
+      
       router.push('/')
     },
     // Permet de modifier un profil
     async updateProfile (newUser) {
-      await axios.put('/api/user/', 'nom=' + newUser.nom + '&prenom=' + newUser.prenom + '&email=' + newUser.email + '&telephone=' + newUser.telephone)
+      await axios.put('/api/profile/', 'nom=' + newUser.nom + '&prenom=' + newUser.prenom + '&email=' + newUser.email + '&telephone=' + newUser.telephone)
       const res = await axios.get('/api/me')
       this.user.nom = res.data.user.nom
       this.user.email = res.data.user.email
@@ -162,7 +172,8 @@ var app = new Vue({
           title: "Validé",
           text: "Votre réservation a été prise en compte M./Mme. " + this.user.nom,
           autoclose: true,
-          autotimeout: 2000
+          autotimeout: 2000,
+          position: "center"
         })
         router.push('/')
       } else {
@@ -171,23 +182,32 @@ var app = new Vue({
           title: "Attention",
           text: "Veuillez vous connecter en client pour passer une commande",
           autoclose: true,
-          autotimeout: 2000
+          autotimeout: 2000,
+          position: "center"
         })
         router.push('/connexion')
       }
     },
     // Permet de simuler le passage d'une commande
-    async commander () {
+    async commander (adresse) {
       if (this.user.id) {
         if (this.panier.menus.length != 0) {
-          const res = await axios.post('/api/panier/commander')
-          this.panier = res.data
+          const res = await axios.post('/api/panier/commander', adresse)
+          this.user.commands.push(res.data)
+          this.panier = {
+            createdAt: null,
+            updatedAt: null,
+            nb_menus: 0,
+            prix: 0,
+            menus: []
+          }
           new Notify({
             status: "success",
             title: "Validé",
             text: "Votre commande a été prise en compte M./Mme. " + this.user.nom,
             autoclose: true,
-            autotimeout: 2000
+            autotimeout: 2000,
+            position: "center"
           })
           router.push('/')
         } else {
@@ -196,7 +216,8 @@ var app = new Vue({
             title: "Attention",
             text: "Votre panier est vide !",
             autoclose: true,
-            autotimeout: 2000
+            autotimeout: 2000,
+            position: "center"
           })
         }
       } else {
@@ -205,7 +226,8 @@ var app = new Vue({
           title: "Attention",
           text: "Veuillez vous connecter pour passer une commande",
           autoclose: true,
-          autotimeout: 2000
+          autotimeout: 2000,
+          position: "center"
         })
         router.push('/connexion')
       }
@@ -214,7 +236,7 @@ var app = new Vue({
     async addToPanier (menu) {
       for (let i = 0; i != this.menusTypes.length; i++) {
         if (menu.type == this.menusTypes[i]) {
-          const res = await axios.post('/api/panier','id=' + menu.id + '&type=' + menu.type + '&quantity=1' + '&prix=' + menu.prix + '&image=' + menu.image)
+          const res = await axios.post('/api/panier','id=' + menu.id + '&type=' + menu.type + '&quantity=1' + '&prix=' + menu.prix + '&image=' + menu.image + '&name=' + menu.name)
           this.panier.menus.push(res.data)
 
           this.panier.nb_menus = this.panier.nb_menus + 1
@@ -279,7 +301,7 @@ var app = new Vue({
         }
       }
     },
-    // Permet de supprimer un menu depius la liste des menus du site
+    // Permet de supprimer un menu depuis la liste des menus du site
     async deleteMenu (content) {
       await axios.delete('/api/menu/' + content.type + '/' + content.id)
       for (let i = 0; i != this.menusTypes.length; i++) {
@@ -301,6 +323,22 @@ var app = new Vue({
           menu.price = newMenu.price
         }
       }
+    },
+    // Permet de supprimer un utilisateur depuis la liste des utilisateurs sur la vue admin
+    async deleteUser (content) {
+      await axios.post('/api/user/', "id=" + content.id)
+      const index = this.admin.users.findIndex(a => a.id === content.id)
+      this.admin.users.splice(index, 1)
+    },
+    // Permet de modifier un des utilisateurs du site
+    async updateUser (newUser) {
+      console.log(newUser)
+      const res = await axios.put('/api/user', newUser)
+      const user = this.admin.users.find(a => a.id === newUser.id)
+      user.nom = newUser.nom
+      user.prenom = newUser.prenom
+      user.email = newUser.email
+      user.telephone = newUser.telephone
     }
   }
 })

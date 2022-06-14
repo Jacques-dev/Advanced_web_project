@@ -3,6 +3,7 @@
   const menus = require('../data/menus.js')
   const bcrypt = require('bcrypt')
   const { Client } = require('pg')
+  const paypal = require('paypal-rest-sdk')
 
   const client = new Client({
    user: 'postgres',
@@ -90,6 +91,7 @@
         req.session.userFirstName = result2.rows[0].prenom
         req.session.userTelephone = result2.rows[0].telephone
         req.session.reservationId = 0
+        req.session.commandId = 0
 
         res.status(200).json({ message: "well logged as user" })
 
@@ -118,7 +120,6 @@
       const hashedPassword = result.rows[0].password
 
       if (await bcrypt.compare(password, hashedPassword)) {
-        console.log("oui");
 
         const sqlId = "SELECT id FROM admin WHERE email=$1"
         const result2 = await client.query({
@@ -132,6 +133,14 @@
         req.session.userEmail = null
         req.session.userFirstName = null
         req.session.userTelephone = null
+
+        const sqlUsers = "SELECT id, nom, prenom, email, telephone FROM users"
+        const resultUsers = await client.query({
+          text: sqlUsers,
+          values: []
+        })
+        
+        req.session.users = resultUsers.rows
 
         res.status(200).json({ message: "well logged as admin" })
 
@@ -184,6 +193,17 @@
           result.rows[i].date = new Date(result.rows[i].date).toString().slice(0,15)
         }
         reserv = result.rows
+
+        const select2 = "SELECT * FROM command WHERE client=$1"
+        const result2 = await client.query({
+          text: select2,
+          values: [req.session.userId]
+        })
+
+        for (let i = 0; i < result2.rows.length; i++) {
+          result2.rows[i].date = new Date(result2.rows[i].date).toString().slice(0,15)
+        }
+        cmd = result2.rows
       }
 
       const user = {
@@ -192,10 +212,16 @@
         email: req.session.userEmail,
         prenom: req.session.userFirstName,
         telephone: req.session.userTelephone,
-        reservations: reserv
+        reservations: reserv,
+        commands: cmd
       }
+      const admin = {
+        id: req.session.adminId,
+        users: req.session.users
+      }
+      
       const log = {
-        adminId: req.session.adminId,
+        admin: admin,
         user: user
       }
       res.json(log)
@@ -206,7 +232,7 @@
 
   // Cette route modifie dans la base de données et dans "vue-application.js"
   // les informations de l'utilisateurs connecté
-  router.put('/user', async (req, res) => {
+  router.put('/profile', async (req, res) => {
     var nom = req.body.nom
     var prenom = req.body.prenom
     var email = req.body.email
@@ -234,6 +260,50 @@
     const result = await client.query({
       text: update,
       values: [nom, prenom, email, telephone]
+    })
+
+    res.send()
+  })
+
+  // Cette route surpprime un utilisateur depuis la base de données s'il existe
+  router.post('/user', async (req, res) => {
+    var userId = req.body.id
+
+    const sql = "SELECT * FROM users WHERE id=$1"
+    const result = await client.query({
+      text: sql,
+      values: [userId]
+    })
+
+    if (result.rowCount == 1) {
+      
+      const sql = "DELETE FROM users WHERE id=$1"
+      await client.query({
+        text: sql,
+        values: [userId]
+      })
+
+      res.status(200).json({ message: "user deleted" })
+    } else {
+      res.status(400).json({ message: "this user doesn't exist" })
+    }
+    res.send()
+
+  })
+
+  // Cette route modifie dans la base de données et dans "vue-application.js"
+  // les informations de l'utilisateurs connecté
+  router.put('/user', async (req, res) => {
+    var id = req.body.id
+    var nom = req.body.nom
+    var prenom = req.body.prenom
+    var email = req.body.email
+    var telephone = req.body.telephone
+    
+    const update = "UPDATE users SET nom = $1, prenom = $2, email = $3, telephone = $4 WHERE id=$5"
+    await client.query({
+      text: update,
+      values: [nom, prenom, email, telephone, id]
     })
 
     res.send()
@@ -298,6 +368,7 @@
     const menuPrix = parseInt(req.body.prix)
     const menuType = req.body.type
     const menuImage = req.body.image
+    const menuName = req.body.name
 
     if (menuQte <= 0) {
       res.status(400).json({ message: "bad request" })
@@ -318,7 +389,8 @@
         quantity: menuQte,
         prix: menuPrix,
         type: menuType,
-        image: menuImage
+        image: menuImage,
+        name: menuName
       }
 
       req.session.panier.nb_menus = req.session.panier.nb_menus + newMenu.quantity
@@ -444,12 +516,110 @@
   */
   router.post('/panier/commander', (req, res) => {
     if (req.session.userId) {
-      req.session.panier = new Panier()
-      res.status(200).json(req.session.panier)
+      req.session.comande_adresse = req.body.adresse
+      
+      paypal.configure({
+        'mode': 'sandbox', //sandbox or live
+        'client_id': 'ARD_menk_aGf4bMEw_3J8-s-fPA3-RN3pVyJn1quLgHxF5yuCANbiw7h6HhpErEZDKMTMe8ngkDdxipT',
+        'client_secret': 'EIzvugZik0XIyWdDlnLyKQZ1Q2gnCEc5CM492ro9kbCfLzNe9sh-VJV7cGCuyN84qxxEkX2sgtBgdQa1'
+      });
+      
+      const create_payment_json = {
+        "intent": "sale",
+        "payer": {
+            "payment_method": "paypal"
+        },
+        "redirect_urls": {
+            "return_url": "http://localhost:3000/success",
+            "cancel_url": "http://localhost:3000/cancel"
+        },
+        "transactions": [{
+            "item_list": {
+                "items": [{
+                    "name": "Redhock Bar Soap",
+                    "sku": "001",
+                    "price": "25.00",
+                    "currency": "USD",
+                    "quantity": 1
+                }]
+            },
+            "amount": {
+                "currency": "USD",
+                "total": "25.00"
+            },
+            "description": "Washing Bar soap"
+        }]
+      }
+      
+      paypal.payment.create(create_payment_json, function (error, payment) {
+        
+        if (error) {
+            throw error;
+        } else {
+            for(let i = 0;i < payment.links.length;i++){
+              console.log(payment.links[i])
+              if(payment.links[i].rel === 'approval_url'){
+                res.redirect(payment.links[i].href)
+              }
+            }
+        }
+      });
+      
     } else {
       res.status(401).json({ message: "not logged" })
     }
   })
+
+  router.get('/success', (req, res) => {
+    const payerId = req.query.PayerID;
+    const paymentId = req.query.paymentId;
+  
+    const execute_payment_json = {
+      "payer_id": payerId,
+      "transactions": [{
+          "amount": {
+              "currency": "USD",
+              "total": "25.00"
+          }
+      }]
+    };
+  
+    // Obtains the transaction details from paypal
+    paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+        //When error occurs when due to non-existent transaction, throw an error else log the transaction details in the console then send a Success string reposponse to the user.
+      if (error) {
+          console.log(error.response);
+          throw error;
+      } else {
+          console.log(JSON.stringify(payment));
+          res.send('Success');
+      }
+    });
+  });
+
+  // const time = new Date()
+  // const price = req.session.panier.prix
+  // const adresse = req.session.comande_adresse
+  // const id = req.session.userId
+
+  // const insert = "INSERT INTO command (time, price, adresse, client) VALUES ($1, $2, $3, $4)"
+
+  // await client.query({
+  //   text: insert,
+  //   values: [time, price, adresse, id]
+  // })
+
+  // const command = {
+  //   id: req.session.reservationId + 1,
+  //   date: time,
+  //   price: price,
+  //   adresse: adresse,
+  //   client: id
+  // }
+  // console.log("6")
+  // req.session.panier = new Panier()
+  // res.status(200).json(command)
+
 
   /**
    * Cette route envoie l'intégralité des menus du site
