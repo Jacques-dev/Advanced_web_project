@@ -3,16 +3,16 @@
   <div>
 
     <ul id="slider">
-      <li><router-link to="/#first" title="Next Section"><img src="https://ianlunn.co.uk/plugins/jquery-parallax/images/dot.png" alt="Link" /></router-link></li>
-      <li><router-link to="/#second" title="Next Section"><img src="https://ianlunn.co.uk/plugins/jquery-parallax/images/dot.png" alt="Link" /></router-link></li>
-      <li><router-link to="/#third" title="Next Section"><img src="https://ianlunn.co.uk/plugins/jquery-parallax/images/dot.png" alt="Link" /></router-link></li>
-      <li><router-link to="/#four" title="Next Section"><img src="https://ianlunn.co.uk/plugins/jquery-parallax/images/dot.png" alt="Link" /></router-link></li>
+      <li><router-link to="/#first" title="Next Section"><img src="https://fr.m.wikipedia.org/wiki/Fichier:Location_dot_orange.svg"/></router-link></li>
+      <li><router-link to="/#second" title="Next Section"><img src="https://fr.m.wikipedia.org/wiki/Fichier:Location_dot_orange.svg"/></router-link></li>
+      <li><router-link to="/#third" title="Next Section"><img src="https://fr.m.wikipedia.org/wiki/Fichier:Location_dot_orange.svg"/></router-link></li>
+      <li><router-link to="/#four" title="Next Section"><img src="https://fr.m.wikipedia.org/wiki/Fichier:Location_dot_orange.svg"/></router-link></li>
     </ul>
 
     <section id="first" class="container-fluid parallax">
       <section class="row h-75 justify-content-center align-items-center">
         <article class="h-100" id="titre_page">
-          <p>Saveur d'Asie</p>
+          <p>Saveur d'Asies</p>
         </article>
       </section>
       <section class="row h-60 align-items-center" id="first_bordereau">

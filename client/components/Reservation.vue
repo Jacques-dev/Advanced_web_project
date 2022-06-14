@@ -98,9 +98,9 @@
 
     },
     props: {
-      admin: {type: Object},
-      user: {type: Object},
-      reservations: {type: Array}
+      admin: {status: Object},
+      user: {status: Object},
+      reservations: {status: Array}
     },
     data () {
       return {
@@ -122,10 +122,11 @@
           this.$emit('reserver', this.editingReservation)
         } else {
           asAlertMsg({
-            type: "warning",
+            status: "warning",
             title: "Attention",
-            message: "Veuillez remplir les champs de votre réservation",
-            timer: 2000,
+            text: "Veuillez remplir les champs de votre réservation",
+            autoclose: true,
+            autotimeout: 2000
           })
         }
       }

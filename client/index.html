@@ -32,8 +32,8 @@
     <script type="text/javascript" src="https://ianlunn.co.uk/plugins/jquery-parallax/scripts/jquery.scrollTo-1.4.2-min.js"></script>
 
     <!-- Popup CSS -->
-    <link href="https://cdn.isfidev.net/asalertmessage/v1.0/css/as-alert-message.min.css" rel="stylesheet">
-    <script src="https://cdn.isfidev.net/asalertmessage/v1.0/js/as-alert-message.min.js"></script>
+    <link rel="stylesheet" href="popup/simple-notify.min.css" />
+    <script src="popup/simple-notify.min.js"></script>
 
   </head>
 
@@ -50,7 +50,8 @@
         <router-link type="button" class="btn_effect btn_nav nav-link " to='/#footer'>Contact</router-link>
 
         <div class="topnav-right">
-          <h4 class="nav-link" v-if="admin.id" style="color: var(--beige); cursor: default">Administrateur</h4>
+          <!--<h4 class="nav-link" v-if="admin.id" style="color: var(--beige); cursor: default">Administrateur</h4>-->
+          <router-link class="nav-link btn_effect btn_nav " v-if="admin.id" to='/administration'>Administrateur</router-link>
           <router-link class="nav-link btn_effect btn_nav " v-if="user.id" to='/profil'>Profil</router-link>
           <router-link class="nav-link btn_effect btn_nav " v-if="(user.id) || (admin.id)" to='/deconnexion'>Déconnexion</router-link>
           <router-link class="nav-link btn_effect btn_nav " v-else to='/connexion'>Connexion</router-link>
@@ -97,7 +98,7 @@
             <p class="titre_article_footer">Adresse</p>
             <p class= "texte_article_footer">
               Villejuif (94800) <br>
-              18 Avenue Louis Cherel</p>
+              18 Avenue Halim DJERROUD</p>
           </div>
           <div class="col-sm-3">
             <p class="titre_article_footer"> Heures d'ouverture</p>
@@ -109,15 +110,13 @@
           <div class="col-sm-3">
             <p class="titre_article_footer"> Nous contacter</p>
             <p class= "texte_article_footer">
-              Jacques.tellier@efrei.net <br>
-              Merouane.souadji@efrei.net
+              Jacques.tellier@efrei.net
             </p>
           </div>
           <div id="linkedin" class="col-sm-2">
             <p class="titre_article_footer"> Linkedin </p>
             <p class="texte_article_footer">
             <p> <a class="slide" href="https://www.linkedin.com/in/jacques-tellier/" target="_blank"> Jacques Tellier </a> </p>
-            <p> <a class="slide" href="https://www.linkedin.com/in/merouane-souadji-6992241b8" target="_blank"> Merouane Souadji </a> </p>
           </p>
 
           </div>

@@ -5,6 +5,7 @@ const Connexion = window.httpVueLoader('./components/Connexion.vue')
 const Deconnexion = window.httpVueLoader('./components/Deconnexion.vue')
 const Reserver = window.httpVueLoader('./components/Reservation.vue')
 const Profil = window.httpVueLoader('./components/Profil.vue')
+const Administration = window.httpVueLoader('./components/Administration.vue')
 
 const routes = [
   { path: '/', component: Accueil},
@@ -13,6 +14,7 @@ const routes = [
   { path: '/connexion', component: Connexion},
   { path: '/deconnexion', component: Deconnexion},
   { path: '/profil', component: Profil},
+  { path: '/administration', component: Administration},
   { path: '/reserver', component: Reserver}
 ]
 
@@ -71,11 +73,12 @@ var app = new Vue({
         await axios.post('/api/register/','nom=' + user.nom + '&email=' + user.email + '&password=' + user.password +  '&prenom=' + user.prenom + '&telephone=' + user.telephone)
         router.push('/connexion')
       } catch (e) {
-        asAlertMsg({
-          type: "warning",
+        new Notify({
+          status: "warning",
           title: "Attention",
-          message: "Cette adresse mail existe déjà",
-          timer: 2000,
+          text: "Cette adresse mail existe déjà",
+          autoclose: true,
+          autotimeout: 2000
         })
       }
     },
@@ -87,19 +90,21 @@ var app = new Vue({
         const res = await axios.get('/api/me')
         this.admin.id = res.data.adminId
         this.user = res.data.user
-        asAlertMsg({
-          type: "success",
+        new Notify({
+          status: "success",
           title: "Validé",
-          message: "Votre êtes connecté",
-          timer: 2000,
+          text: "Votre êtes connecté",
+          autoclose: true,
+          autotimeout: 2000
         })
         router.push('/')
       } catch (e) {
-        asAlertMsg({
-          type: "warning",
+        new Notify({
+          status: "warning",
           title: "Attention",
-          message: "Votre êtes connecté",
-          timer: 2000,
+          text: "Votre êtes connecté",
+          autoclose: true,
+          autotimeout: 2000
         })
       }
     },
@@ -109,11 +114,12 @@ var app = new Vue({
 
       const res = await axios.get('/api/me')
       this.admin.id = res.data.adminId
-      asAlertMsg({
-        type: "success",
+      new Notify({
+        status: "success",
         title: "Validé",
-        message: "Votre êtes connecté en admin",
-        timer: 2000,
+        text: "Votre êtes connecté en admin",
+        autoclose: true,
+        autotimeout: 2000
       })
       router.push('/')
     },
@@ -138,11 +144,12 @@ var app = new Vue({
       this.user.email = res.data.user.email
       this.user.prenom = res.data.user.prenom
       this.user.telephone = res.data.user.telephone
-      asAlertMsg({
-        type: "success",
+      new Notify({
+        status: "success",
         title: "Validé",
-        message: "Votre profil à été modifié",
-        timer: 2000,
+        text: "Votre profil à été modifié",
+        autoclose: true,
+        autotimeout: 2000
       })
     },
     // Permet d'enregistrer une réservation
@@ -150,19 +157,21 @@ var app = new Vue({
       if (this.user.id) {
         const res = await axios.post('/api/reservation','date=' + reservation.date + '&heure=' + reservation.heure + '&personnes=' + reservation.personnes)
         this.user.reservations.push(res.data)
-        asAlertMsg({
-          type: "success",
+        new Notify({
+          status: "success",
           title: "Validé",
-          message: "Votre réservation a été prise en compte M./Mme. " + this.user.nom,
-          timer: 2000,
+          text: "Votre réservation a été prise en compte M./Mme. " + this.user.nom,
+          autoclose: true,
+          autotimeout: 2000
         })
         router.push('/')
       } else {
-        asAlertMsg({
-          type: "warning",
+        new Notify({
+          status: "warning",
           title: "Attention",
-          message: "Veuillez vous connecter en client pour passer une commande",
-          timer: 2000,
+          text: "Veuillez vous connecter en client pour passer une commande",
+          autoclose: true,
+          autotimeout: 2000
         })
         router.push('/connexion')
       }
@@ -173,27 +182,30 @@ var app = new Vue({
         if (this.panier.menus.length != 0) {
           const res = await axios.post('/api/panier/commander')
           this.panier = res.data
-          asAlertMsg({
-            type: "success",
+          new Notify({
+            status: "success",
             title: "Validé",
-            message: "Votre commande a été prise en compte M./Mme. " + this.user.nom,
-            timer: 2000,
+            text: "Votre commande a été prise en compte M./Mme. " + this.user.nom,
+            autoclose: true,
+            autotimeout: 2000
           })
           router.push('/')
         } else {
-          asAlertMsg({
-            type: "warning",
+          new Notify({
+            status: "warning",
             title: "Attention",
-            message: "Votre panier est vide !",
-            timer: 2000,
+            text: "Votre panier est vide !",
+            autoclose: true,
+            autotimeout: 2000
           })
         }
       } else {
-        asAlertMsg({
-          type: "warning",
+        new Notify({
+          status: "warning",
           title: "Attention",
-          message: "Veuillez vous connecter pour passer une commande",
-          timer: 2000,
+          text: "Veuillez vous connecter pour passer une commande",
+          autoclose: true,
+          autotimeout: 2000
         })
         router.push('/connexion')
       }

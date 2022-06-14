@@ -19,7 +19,7 @@
     <section id="colonne_principale" class="container">
 
       <article class="row d-flex justify-content-center">
-        <p id="titre_page">Decouvrez nos variétés de plats<p>
+        <p id="titre_page">Decouvrez nos variétés de plats</p>
       </article>
 
       <article class="row">
