@@ -83,8 +83,8 @@ var app = new Vue({
         router.push('/connexion')
       } catch (e) {
         new Notify({
-          status: "warning",
-          title: "Attention",
+          status: "error",
+          title: "Erreur",
           text: "Cette adresse mail existe déjà",
           autoclose: true,
           autotimeout: 2000,
@@ -225,6 +225,7 @@ var app = new Vue({
         router.push('/connexion')
       }
     },
+    // Permet de validé le paiement avec enregistrement en bdd de la commande
     async successPayment (content) {
       const res = await axios.post('/api/success', content)
       this.user.commands.push(res.data)
@@ -244,6 +245,18 @@ var app = new Vue({
         position: "center"
       })
       router.push('/')
+    },
+    // Permet de signaluer à l'utilisateur d'une erreur lors du paiement
+    async errorPayment () {
+      new Notify({
+        status: "error",
+        title: "Erreur de paiement",
+        text: "Une erreur est survenu, veuillez re-essayer",
+        autoclose: true,
+        autotimeout: 2000,
+        position: "center"
+      })
+      router.push('/commander')
     },
     // Permet d'ajouter un menu au panier
     async addToPanier (menu) {
