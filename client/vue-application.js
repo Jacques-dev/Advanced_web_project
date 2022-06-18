@@ -6,6 +6,8 @@ const Deconnexion = window.httpVueLoader('./components/Deconnexion.vue')
 const Reserver = window.httpVueLoader('./components/Reservation.vue')
 const Profil = window.httpVueLoader('./components/Profil.vue')
 const Administration = window.httpVueLoader('./components/Administration.vue')
+const Statistiques = window.httpVueLoader('./components/Statistiques.vue')
+
 
 const routes = [
   { path: '/', component: Accueil},
@@ -15,6 +17,7 @@ const routes = [
   { path: '/deconnexion', component: Deconnexion},
   { path: '/profil', component: Profil},
   { path: '/administration', component: Administration},
+  { path: '/statistiques', component: Statistiques},
   { path: '/reserver', component: Reserver}
 ]
 
@@ -52,7 +55,8 @@ var app = new Vue({
     },
     admin: {
       id: null,
-      users: []
+      users: [],
+      commands: []
     },
     menusTypes: ['soups', 'dumplings', 'noodles', 'sashimi', 'nigiri']
   },
@@ -135,6 +139,7 @@ var app = new Vue({
       const res = await axios.post('/api/logout/')
       this.admin.id = res.data.admin
       this.admin.users = []
+      this.admin.commands = []
       this.user.nom = res.data.nom
       this.user.email = res.data.email
       this.user.prenom = res.data.prenom

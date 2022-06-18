@@ -50,7 +50,7 @@
         <router-link type="button" class="btn_effect btn_nav nav-link " to='/#footer'>Contact</router-link>
 
         <div class="topnav-right">
-          <!--<h4 class="nav-link" v-if="admin.id" style="color: var(--beige); cursor: default">Administrateur</h4>-->
+          <router-link class="nav-link btn_effect btn_nav " v-if="admin.id" to='/statistiques'>Statistiques</router-link>
           <router-link class="nav-link btn_effect btn_nav " v-if="admin.id" to='/administration'>Administrateur</router-link>
           <router-link class="nav-link btn_effect btn_nav " v-if="user.id" to='/profil'>Profil</router-link>
           <router-link class="nav-link btn_effect btn_nav " v-if="(user.id) || (admin.id)" to='/deconnexion'>Déconnexion</router-link>

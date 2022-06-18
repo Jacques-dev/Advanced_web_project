@@ -142,6 +142,14 @@
         
         req.session.users = resultUsers.rows
 
+        const sqlCommands = "SELECT id, time, price, adresse, client FROM command"
+        const resultCommands = await client.query({
+          text: sqlCommands,
+          values: []
+        })
+        
+        req.session.commands = resultCommands.rows
+
         res.status(200).json({ message: "well logged as admin" })
 
       } else {
@@ -181,6 +189,7 @@
     if (req.session.userId || req.session.adminId) {
 
       var reserv = []
+      var cmd = []
 
       if (req.session.userId) {
         const select = "SELECT * FROM reservation WHERE client=$1"
@@ -217,7 +226,8 @@
       }
       const admin = {
         id: req.session.adminId,
-        users: req.session.users
+        users: req.session.users,
+        commands: req.session.commands
       }
       
       const log = {
