@@ -103,7 +103,7 @@
 
                   <article class="row ligne_boutons_panier">
                     <article class="col-sm-6">
-                      <select class="col-sm-12 mySelect" @change="edit(menu.id, menu.type, menu.prix)" v-model="editMenu.quantity">
+                      <select class="col-sm-12 mySelect" @change="edit(menu.id, menu.type, menu.prix, menu.quantity)" v-model="menu.quantity">
                         <option value="" disabled selected>quantité</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -172,10 +172,11 @@
         this.menuType = newType
       },
       // Envoie la valeur des champs du formulaire de modification d'un menu dans le panier
-      edit(id, type, prix) {
+      edit(id, type, prix, quantity) {
         this.editMenu.id = id
         this.editMenu.type = type
         this.editMenu.prix = prix
+        this.editMenu.quantity = quantity
         let content = {
           id: this.editMenu.id,
           quantity: this.editMenu.quantity,

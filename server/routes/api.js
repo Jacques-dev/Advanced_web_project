@@ -440,7 +440,7 @@
       }
     }
   }
-  // Cette fonction
+  // Cette fonction retourn l'index d'un menu
   function indexMenuInPanier (id, type, menus) {
     var index = 0
     for (let i = 0; i != menus.length; i++) {
@@ -451,6 +451,17 @@
       }
       index ++
     }
+  }
+  // Cette fonction claculer le prix total du panier
+  function newPanierPrice (req) {
+    var price = 0
+    const size = req.session.panier.menus.length
+
+    for (let i = 0; i != size; i++) {
+      price += req.session.panier.menus[i].prix * req.session.panier.menus[i].quantity
+    }
+
+    return price
   }
 
   /*
@@ -512,11 +523,10 @@
     } else if (index === -1) {
       res.status(501).json({ message: "L'menu n'est pas dans le panier" })
     } else {
-      const size = req.session.panier.menus.length
-      for (let i = 0; i != size; i++) {
-        req.session.panier.menus[i].quantity = menuQte
-      }
-      res.send()
+      req.session.panier.menus[index].quantity = menuQte
+      req.session.panier.prix = newPanierPrice(req)
+
+      res.status(200).json({ index: index })
     }
   })
 
@@ -526,6 +536,7 @@
   */
   router.post('/panier/commander', (req, res) => {
     if (req.session.userId) {
+      
       req.session.comande_adresse = req.body.adresse
       
       paypal.configure({
@@ -540,22 +551,22 @@
             "payment_method": "paypal"
         },
         "redirect_urls": {
-            "return_url": "http://localhost:3000/success",
-            "cancel_url": "http://localhost:3000/cancel"
+            "return_url": "http://localhost:3000/#/success",
+            "cancel_url": "http://localhost:3000/#/error"
         },
         "transactions": [{
             "item_list": {
                 "items": [{
                     "name": "Redhock Bar Soap",
                     "sku": "001",
-                    "price": "25.00",
-                    "currency": "USD",
+                    "price": req.session.panier.prix,
+                    "currency": "EUR",
                     "quantity": 1
                 }]
             },
             "amount": {
-                "currency": "USD",
-                "total": "25.00"
+                "currency": "EUR",
+                "total": req.session.panier.prix
             },
             "description": "Washing Bar soap"
         }]
@@ -567,9 +578,8 @@
             throw error;
         } else {
             for(let i = 0;i < payment.links.length;i++){
-              console.log(payment.links[i])
               if(payment.links[i].rel === 'approval_url'){
-                res.redirect(payment.links[i].href)
+                res.status(200).json({ location: payment.links[i].href })
               }
             }
         }
@@ -580,55 +590,52 @@
     }
   })
 
-  router.get('/success', (req, res) => {
-    const payerId = req.query.PayerID;
-    const paymentId = req.query.paymentId;
-  
+  router.post('/success', async (req, res) => {
+    const payerId = req.body.PayerID;
+    const paymentId = req.body.paymentId;
+    
     const execute_payment_json = {
       "payer_id": payerId,
       "transactions": [{
           "amount": {
-              "currency": "USD",
-              "total": "25.00"
+              "currency": "EUR",
+              "total": req.session.panier.prix
           }
       }]
     };
   
     // Obtains the transaction details from paypal
-    paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+    paypal.payment.execute(paymentId, execute_payment_json, function (error, execute_payment_json) {
         //When error occurs when due to non-existent transaction, throw an error else log the transaction details in the console then send a Success string reposponse to the user.
       if (error) {
           console.log(error.response);
           throw error;
-      } else {
-          console.log(JSON.stringify(payment));
-          res.send('Success');
       }
-    });
-  });
+    })
 
-  // const time = new Date()
-  // const price = req.session.panier.prix
-  // const adresse = req.session.comande_adresse
-  // const id = req.session.userId
+    const time = new Date()
+    const price = req.session.panier.prix
+    const adresse = req.session.comande_adresse
+    const id = req.session.userId
+  
+    const insert = "INSERT INTO command (time, price, adresse, client) VALUES ($1, $2, $3, $4)"
+  
+    await client.query({
+      text: insert,
+      values: [time, price, adresse, id]
+    })
+  
+    const command = {
+      id: req.session.reservationId + 1,
+      date: time,
+      price: price,
+      adresse: adresse,
+      client: id
+    }
 
-  // const insert = "INSERT INTO command (time, price, adresse, client) VALUES ($1, $2, $3, $4)"
-
-  // await client.query({
-  //   text: insert,
-  //   values: [time, price, adresse, id]
-  // })
-
-  // const command = {
-  //   id: req.session.reservationId + 1,
-  //   date: time,
-  //   price: price,
-  //   adresse: adresse,
-  //   client: id
-  // }
-  // console.log("6")
-  // req.session.panier = new Panier()
-  // res.status(200).json(command)
+    req.session.panier = new Panier()
+    res.status(200).json(command)
+  })
 
 
   /**

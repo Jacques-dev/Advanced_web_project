@@ -7,7 +7,8 @@ const Reserver = window.httpVueLoader('./components/Reservation.vue')
 const Profil = window.httpVueLoader('./components/Profil.vue')
 const Administration = window.httpVueLoader('./components/Administration.vue')
 const Statistiques = window.httpVueLoader('./components/Statistiques.vue')
-
+const Success_paiement = window.httpVueLoader('./components/Success_paiement.vue')
+const Error_paiement = window.httpVueLoader('./components/Error_paiement.vue')
 
 const routes = [
   { path: '/', component: Accueil},
@@ -18,7 +19,9 @@ const routes = [
   { path: '/profil', component: Profil},
   { path: '/administration', component: Administration},
   { path: '/statistiques', component: Statistiques},
-  { path: '/reserver', component: Reserver}
+  { path: '/reserver', component: Reserver},
+  { path: '/success', component: Success_paiement},
+  { path: '/error', component: Error_paiement}
 ]
 
 const router = new VueRouter({
@@ -197,24 +200,9 @@ var app = new Vue({
     async commander (adresse) {
       if (this.user.id) {
         if (this.panier.menus.length != 0) {
+          console.log(adresse)
           const res = await axios.post('/api/panier/commander', adresse)
-          this.user.commands.push(res.data)
-          this.panier = {
-            createdAt: null,
-            updatedAt: null,
-            nb_menus: 0,
-            prix: 0,
-            menus: []
-          }
-          new Notify({
-            status: "success",
-            title: "Validé",
-            text: "Votre commande a été prise en compte M./Mme. " + this.user.nom,
-            autoclose: true,
-            autotimeout: 2000,
-            position: "center"
-          })
-          router.push('/')
+          document.location.href=res.data.location
         } else {
           new Notify({
             status: "warning",
@@ -236,6 +224,26 @@ var app = new Vue({
         })
         router.push('/connexion')
       }
+    },
+    async successPayment (content) {
+      const res = await axios.post('/api/success', content)
+      this.user.commands.push(res.data)
+      this.panier = {
+        createdAt: null,
+        updatedAt: null,
+        nb_menus: 0,
+        prix: 0,
+        menus: []
+      }
+      new Notify({
+        status: "success",
+        title: "Validé",
+        text: "Votre commande a été prise en compte M./Mme. " + this.user.nom,
+        autoclose: true,
+        autotimeout: 2000,
+        position: "center"
+      })
+      router.push('/')
     },
     // Permet d'ajouter un menu au panier
     async addToPanier (menu) {
@@ -282,6 +290,9 @@ var app = new Vue({
               }
             }
           }
+
+          console.log(this.panier.menus)
+
 
         }
       }
