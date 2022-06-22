@@ -2,9 +2,6 @@
   <div id="background_infos">
 
     <div id="nos_utilisateurs" class="container-fluid">
-      <section class="row titre_section">
-          Nos utilisateurs
-      </section>
       <article class="row chaque_utilisateur" v-for="user in admin.users" :key="user.id">
       
         <div class="container-fluid">
@@ -124,6 +121,16 @@
 </script>
 
 <style scoped>
+
+  #background_infos {
+    color: var(--rouge);
+    height: 74vh;
+  }
+
+  #nos_utilisateurs {
+    overflow-y: scroll;
+    height: 74vh;
+  }
 
   .chaque_utilisateur {
     background-color: var(--beige);
