@@ -5,7 +5,6 @@ const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 const apiRouter = require('./routes/api.js')
 
-
 const app = express()
 
 app.use(logger('dev'))
